@@ -13,6 +13,12 @@ pipeline {
   }
 
   stages {
+    stage('Manual Intervention') {
+      steps {
+        input(message: 'Confirm deploy?', ok: 'Yes. do it')
+      }
+    }
+  
     stage('Deploy to Azure App Service') {
       steps {
         withCredentials(bindings: [azureServicePrincipal('Azure-Service-Principal-Prod'), usernamePassword(credentialsId: 'docker', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
