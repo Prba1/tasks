@@ -1,0 +1,335 @@
+<nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"> Tasks </a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="text-center">Lista de tareas</h1>
+
+  <div class="d-flex justify-content-between">
+    <div><!-- contenido aquí --></div>
+    <button
+      class="btn btn-success btn-sm"
+      data-bs-toggle="modal"
+      data-bs-target="#createTaskModal"
+    >
+      Nueva Tarea
+    </button>
+  </div>
+  <!-- Modal de creación de tarea -->
+  <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editarModalLabel">Nueva tarea</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+
+
+        <div class="modal-body">
+
+          <form (submit)="$event.preventDefault()">
+            <div class="modal-body">
+              <textarea
+                name="nuevaTarea"
+                cols="45"
+                rows="5"
+                #nuevaTarea
+
+              ></textarea>
+            </div>
+            <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+             <div class="modal-footer">
+              <button #cancelButton type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+              <button type="button" class="btn btn-primary" (click)="createTask(nuevaTarea.value)">Guardar cambios</button>
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row">
+    <div class="col-sm-12 col-md-6">
+      <h2>Tareas pendientes</h2>
+
+      <ul class="list-group" *ngFor="let task of tasks$ | async">
+        <li class="list-group-item" *ngIf="task.estado === 0">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              (change)="updateTaskStatus(task, task.estado === 0 ? 1 : 0)"
+            />
+            <label class="form-check-label">{{ task.nota }}</label>
+
+            <button
+              style="float: right; margin-right: 10px"
+              class="btn btn-danger btn-sm"
+              data-bs-toggle="modal"
+              [attr.data-bs-target]="'#eliminarModal-' + task.id"
+            >
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button
+              style="float: right; margin-right: 10px"
+              class="btn btn-warning btn-sm"
+              data-bs-toggle="modal"
+              [attr.data-bs-target]="'#editarModal-' + task.id"
+            >
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+          </div>
+        </li>
+        <div
+        class="modal fade"
+        [id]="'eliminarModal-' + task.id"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="eliminarModal"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="eliminarModal">Eliminar Tarea</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <form
+              (submit)="
+                deleteTask(task); $event.preventDefault()
+              "
+            >
+              <div class="modal-body">
+             Seguro que deseas eliminar la tarea?: {{task.nota}}
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="submit"
+                  data-bs-dismiss="modal"
+                  class="btn btn-danger"
+                >
+                 Eliminar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+        <!-- Modal de edición -->
+        <div
+          class="modal fade"
+          [id]="'editarModal-' + task.id"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="editarModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editarModalLabel">Editar tarea</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <form
+                (submit)="
+                  updateTask(task, updatedNote.value); $event.preventDefault()
+                "
+              >
+                <div class="modal-body">
+                  <textarea
+                    name="updatedNote"
+                    cols="45"
+                    rows="5"
+                    #updatedNote
+                    >{{ task.nota }}</textarea
+                  >
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    data-bs-dismiss="modal"
+                    class="btn btn-primary"
+                  >
+                    Guardar cambios
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </ul>
+    </div>
+    <div class="col-sm-12 col-md-6">
+      <h2>Tareas completadas</h2>
+
+      <ul class="list-group" *ngFor="let task of completedTasks$ | async">
+        <li class="list-group-item" *ngIf="task.estado === 1">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              checked
+              class="form-check-input"
+              (change)="updateTaskStatus(task, task.estado === 1 ? 0 : 1)"
+            />
+            <label class="form-check-label">{{ task.nota }}</label>
+
+            <button
+            style="float: right; margin-right: 10px"
+            class="btn btn-danger btn-sm"
+            data-bs-toggle="modal"
+            [attr.data-bs-target]="'#eliminarModal-' + task.id"
+          >
+            <i class="fas fa-trash-alt"></i>
+          </button>
+            <button
+              style="float: right; margin-right: 10px"
+              class="btn btn-warning btn-sm"
+              data-bs-toggle="modal"
+              [attr.data-bs-target]="'#editarModal-' + task.id"
+            >
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+          </div>
+        </li>
+        <div
+        class="modal fade"
+        [id]="'eliminarModal-' + task.id"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="eliminarModal"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="eliminarModal">Eliminar Tarea</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <form
+              (submit)="
+                deleteTask(task); $event.preventDefault()
+              "
+            >
+              <div class="modal-body">
+             Seguro que deseas eliminar la tarea?: {{task.nota}}
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="submit"
+                  data-bs-dismiss="modal"
+                  class="btn btn-danger"
+                >
+                 Eliminar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+        <!-- Modal de edición -->
+        <div
+          class="modal fade"
+          [id]="'editarModal-' + task.id"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="editarModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editarModalLabel">Editar tarea</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <form
+                (submit)="
+                  updateTask(task, updatedNote.value); $event.preventDefault()
+                "
+              >
+                <div class="modal-body">
+                  <textarea
+                    name="updatedNote"
+                    cols="45"
+                    rows="5"
+                    #updatedNote
+                    >{{ task.nota }}</textarea
+                  >
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    data-bs-dismiss="modal"
+                    class="btn btn-primary"
+                  >
+                    Guardar cambios
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </ul>
+    </div>
+  </div>
+</div>
