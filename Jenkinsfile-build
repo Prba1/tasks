@@ -11,6 +11,9 @@ pipeline {
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/Niiqow/my-app.git']]])
       }
     }
+    stage('Holi'){
+      sh "echo Hola Mundo"
+    }
     stage('Build image') {
       steps {
         sh "docker build -t ${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} ."
