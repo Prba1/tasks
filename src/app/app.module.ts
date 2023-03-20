@@ -4,9 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
+import { TestComponent } from './test/test.component';
+import { HoliComponent } from './holi/holi.component';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TestComponent,
+    HoliComponent
   ],
   imports: [
     BrowserModule,
